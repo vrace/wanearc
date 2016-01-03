@@ -178,6 +178,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\archive_io.c"
+			>
+		</File>
+		<File
+			RelativePath=".\archive_io.h"
+			>
+		</File>
+		<File
 			RelativePath=".\archive_setup.c"
 			>
 		</File>
