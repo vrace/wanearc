@@ -19,4 +19,5 @@ struct archive_setup default_setup =
 	32 * 1024,
 	32 * 1024,
 	unit_transform,
+	{ 'R', 'A', 'W', 0 },
 };
