@@ -2,6 +2,7 @@
 #include "archive_io.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 struct archive
@@ -89,4 +90,69 @@ void archive_close(struct archive *archive)
 
 		free(archive);
 	}
+}
+
+static int write_content(struct archive *archive, FILE *src)
+{
+	int err = 0;
+	int size;
+	int transformed_size;
+
+	assert(archive != NULL);
+	assert(src != NULL);
+
+	while ((size = (int)fread(archive->src, 1, archive->setup->src_size, src)) > 0)
+	{
+		err = 1;
+		transformed_size = archive->setup->transform(archive->setup, archive->transformed, archive->src, size);
+		if (transformed_size < 0)
+			break;
+
+		err = 2;
+		if (fwrite_buf(archive->fp, archive->transformed, transformed_size) != transformed_size)
+			break;
+
+		err = 0;
+	}
+
+	if (err == 0)
+	{
+		err = 3;
+		if (fwrite_int(archive->fp, 0) == sizeof(int))
+			err = 0;
+	}
+
+	return err;
+}
+
+int archive_append(struct archive *archive, const char *file)
+{
+	int err;
+	FILE *src;
+
+	assert(archive != NULL);
+	assert(file != NULL);
+
+	do
+	{
+		err = 1;
+		src = fopen(file, "rb");
+		if (!src)
+			break;
+
+		err = 2;
+		if(fwrite_str(archive->fp, file) != (int)strlen(file))
+			break;
+
+		err = 3;
+		if (write_content(archive, src) != 0)
+			break;
+
+		err = 0;
+	} while(0);
+
+	if (src)
+		fclose(src);
+
+	return err;
 }
