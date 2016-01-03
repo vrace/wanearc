@@ -18,6 +18,15 @@ int main(void)
 	arc = archive_create("test.dat", &default_setup);
 	if (arc)
 	{
+		if (archive_append(arc, "archive.c") == 0)
+		{
+			printf("add success\n");
+		}
+		else
+		{
+			printf("add failed\n");
+		}
+
 		archive_close(arc);
 	}
 	else
