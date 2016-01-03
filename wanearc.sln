@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc", "wanearc\wanearc.vcproj", "{EE5D47B6-7DAD-4B16-8258-69E829E44326}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE5D47B6-7DAD-4B16-8258-69E829E44326}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EE5D47B6-7DAD-4B16-8258-69E829E44326}.Debug|Win32.Build.0 = Debug|Win32
+		{EE5D47B6-7DAD-4B16-8258-69E829E44326}.Release|Win32.ActiveCfg = Release|Win32
+		{EE5D47B6-7DAD-4B16-8258-69E829E44326}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
