@@ -74,10 +74,6 @@ static int fread_block(struct waf_archive *arc)
 					ret = block_size;
 			}
 		}
-		else
-		{
-			block_size = 0;
-		}
 	}
 
 	return ret;
