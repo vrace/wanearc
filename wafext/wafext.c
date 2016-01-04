@@ -135,3 +135,16 @@ struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_se
 	return NULL;
 }
 
+void waf_close_archive(struct waf_archive *arc)
+{
+	if (arc)
+	{
+		if (arc->fp)
+			fclose(fp);
+
+		free(arc->restore_buf);
+		free(arc->transformed_buf);
+
+		free(arc);
+	}
+}
