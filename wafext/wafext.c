@@ -88,7 +88,7 @@ static int match_archive(FILE *fp, struct waf_archive_setup *setup)
 
 	if (fread(&header, 1, sizeof(header), fp) == sizeof(header))
 	{
-		if (header.arc[0] == 'W' && header.arc[1] == 'A' && header.arc[3] == 'F' && header.arc[4] == 0 &&
+		if (header.arc[0] == 'W' && header.arc[1] == 'A' && header.arc[2] == 'F' && header.arc[3] == 0 &&
 			memcmp(header.tag, setup->tag, 4) == 0 &&
 			int_from_buf(header.restored_size) == setup->restored_size &&
 			int_from_buf(header.transformed_size) == setup->transformed_size)
