@@ -140,7 +140,7 @@ void waf_close_archive(struct waf_archive *arc)
 	if (arc)
 	{
 		if (arc->fp)
-			fclose(fp);
+			fclose(arc->fp);
 
 		free(arc->restore_buf);
 		free(arc->transformed_buf);
