@@ -104,11 +104,15 @@ static int write_content(struct archive *archive, FILE *src)
 	while ((size = (int)fread(archive->src, 1, archive->setup->src_size, src)) > 0)
 	{
 		err = 1;
+		if (fwrite_int(archive->fp, size) != sizeof(int))
+			break;
+
+		err = 2;
 		transformed_size = archive->setup->transform(archive->setup, archive->transformed, archive->src, size);
 		if (transformed_size < 0)
 			break;
 
-		err = 2;
+		err = 3;
 		if (fwrite_buf(archive->fp, archive->transformed, transformed_size) != transformed_size)
 			break;
 
