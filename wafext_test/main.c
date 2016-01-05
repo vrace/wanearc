@@ -26,7 +26,6 @@ int main(void)
 	if (arc)
 	{
 		printf("Archive opened!\n");
-
 		waf_close_archive(arc);
 	}
 	else

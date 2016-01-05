@@ -10,6 +10,10 @@ static struct waf_archive
 	FILE *fp;
 	unsigned char *restore_buf;
 	unsigned char *transformed_buf;
+
+	struct waf_file *filelist;
+	int filelist_cap;
+	int filelist_size;
 	/* TODO: data here to represent the items */
 };
 
@@ -21,6 +25,11 @@ static struct waf_archive_header
 	unsigned char transformed_size[sizeof(int)];
 };
 
+static struct waf_file
+{
+	char name[_MAX_PATH];
+};
+
 static int int_from_buf(const unsigned char *buf)
 {
 	int i;
@@ -30,6 +39,11 @@ static int int_from_buf(const unsigned char *buf)
 		raw |= (unsigned int)buf[i] << (i << 3);
 
 	return *(int*)&raw;
+}
+
+static int align_size(int size)
+{
+	return ((size - 1 + sizeof(int)) / sizeof(int)) * sizeof(int);
 }
 
 static int fread_int(FILE *fp, int *value)
@@ -72,11 +86,34 @@ static int fread_block(struct waf_archive *arc)
 			{
 				if ((int)fread(arc->transformed_buf, 1, block_size, arc->fp) == block_size)
 					ret = block_size;
+
+				fseek(arc->fp, align_size(block_size) - block_size, SEEK_CUR);
 			}
 		}
 	}
 
 	return ret;
+}
+
+static int fread_str(struct waf_archive *arc, char *str, int size)
+{
+	int readsize;
+
+	assert(arc != NULL);
+	assert(str != NULL);
+	assert(size > 0);
+
+	readsize = fread_block(arc);
+	if (readsize >= 0)
+	{
+		if (readsize > size - 1)
+			readsize = size - 1;
+
+		memcpy(str, arc->transformed_buf, readsize);
+		str[readsize] = '\0';
+	}
+
+	return readsize;
 }
 
 static int match_archive(FILE *fp, struct waf_archive_setup *setup)
@@ -98,6 +135,59 @@ static int match_archive(FILE *fp, struct waf_archive_setup *setup)
 	}
 
 	return 0;
+}
+
+static void skip_read_content(struct waf_archive *arc)
+{
+	int size;
+
+	assert(arc != NULL);
+
+	while (1)
+	{
+		if (fread_int(arc->fp, &size) != sizeof(int))
+			break;
+
+		if (size == 0)
+			break;
+
+		if (fread_int(arc->fp, &size) != sizeof(int))
+			break;
+
+		fseek(arc->fp, align_size(size), SEEK_CUR);
+	}
+}
+
+static void expand_filelist(struct waf_archive *arc)
+{
+	assert(arc != NULL);
+	assert(arc->filelist_cap >= 0);
+
+	arc->filelist_cap += arc->filelist_cap == 0 ? 8 : arc->filelist_cap / 2;
+	arc->filelist = realloc(arc->filelist, sizeof(struct waf_file) * arc->filelist_cap);
+}
+
+static void build_filelist(struct waf_archive *arc)
+{
+	assert(arc != NULL);
+	assert(arc->filelist == NULL);
+	assert(arc->filelist_cap == 0);
+	assert(arc->filelist_size == 0);
+
+	fseek(arc->fp, sizeof(struct waf_archive_header), SEEK_SET);
+
+	while (1)
+	{
+		if (arc->filelist_size >= arc->filelist_cap)
+			expand_filelist(arc);
+
+		if (fread_str(arc, arc->filelist[arc->filelist_size].name, _MAX_PATH) <= 0)
+			break;
+
+		arc->filelist_size++;
+
+		skip_read_content(arc);
+	}
 }
 
 struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_setup *setup)
@@ -126,6 +216,12 @@ struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_se
 			arc->restore_buf = malloc(setup->restored_size);
 			arc->transformed_buf = malloc(setup->transformed_size);
 
+			arc->filelist = NULL;
+			arc->filelist_cap = 0;
+			arc->filelist_size = 0;
+
+			build_filelist(arc);
+
 			return arc;
 		}
 
@@ -144,6 +240,8 @@ void waf_close_archive(struct waf_archive *arc)
 
 		free(arc->restore_buf);
 		free(arc->transformed_buf);
+		
+		free(arc->filelist);
 
 		free(arc);
 	}
