@@ -28,6 +28,7 @@ static struct waf_archive_header
 static struct waf_file
 {
 	char name[_MAX_PATH];
+	int size;
 };
 
 static int int_from_buf(const unsigned char *buf)
@@ -137,19 +138,30 @@ static int match_archive(FILE *fp, struct waf_archive_setup *setup)
 	return 0;
 }
 
-static void skip_read_content(struct waf_archive *arc)
+static void build_file_detail(struct waf_archive *arc, struct waf_file *file)
 {
-	int size;
+	FILE *fp;
 
 	assert(arc != NULL);
+	assert(arc->fp != NULL);
+	assert(file != NULL);
+
+	fp = arc->fp;
+	file->size = 0;
 
 	while (1)
 	{
-		if (fread_int(arc->fp, &size) != sizeof(int))
+		int size;
+
+		if (fread_int(fp, &size) != sizeof(int))
 			break;
 
 		if (size == 0)
 			break;
+
+		file->size += size;
+
+		/* TODO: other details to be replaced */
 
 		if (fread_int(arc->fp, &size) != sizeof(int))
 			break;
@@ -184,9 +196,8 @@ static void build_filelist(struct waf_archive *arc)
 		if (fread_str(arc, arc->filelist[arc->filelist_size].name, _MAX_PATH) <= 0)
 			break;
 
+		build_file_detail(arc, &arc->filelist[arc->filelist_size]);
 		arc->filelist_size++;
-
-		skip_read_content(arc);
 	}
 }
 
@@ -244,5 +255,20 @@ void waf_close_archive(struct waf_archive *arc)
 		free(arc->filelist);
 
 		free(arc);
+	}
+}
+
+/* TODO: temporary testing code, to be removed */
+void waf_enum_files(struct waf_archive *arc, void (*enum_func)(const char*, int))
+{
+	int i;
+
+	assert(arc != NULL);
+	assert(enum_func != NULL);
+
+	for (i = 0; i < arc->filelist_size; i++)
+	{
+		struct waf_file *file = &arc->filelist[i];
+		enum_func(file->name, file->size);
 	}
 }
