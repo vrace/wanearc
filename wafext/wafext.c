@@ -29,6 +29,9 @@ static struct waf_file
 {
 	char name[_MAX_PATH];
 	int size;
+	int *blocklist;
+	int blocklist_size;
+	int blocklist_cap;
 };
 
 static int int_from_buf(const unsigned char *buf)
@@ -117,6 +120,16 @@ static int fread_str(struct waf_archive *arc, char *str, int size)
 	return readsize;
 }
 
+static void* expand_array(void *current, int unit_size, int *cap)
+{
+	assert(unit_size >= 0);
+	assert(cap != NULL);
+	assert(*cap >= 0);
+
+	*cap += ((*cap == 0) ? 8 : (*cap / 2));
+	return realloc(current, *cap * unit_size);
+}
+
 static int match_archive(FILE *fp, struct waf_archive_setup *setup)
 {
 	struct waf_archive_header header;
@@ -138,6 +151,17 @@ static int match_archive(FILE *fp, struct waf_archive_setup *setup)
 	return 0;
 }
 
+static void record_block_offset(struct waf_file *file, int offset)
+{
+	assert(file != NULL);
+	assert(offset >= 0);
+
+	if (file->blocklist_size >= file->blocklist_cap)
+		file->blocklist = expand_array(file->blocklist, sizeof(int), &file->blocklist_cap);
+
+	file->blocklist[file->blocklist_size++] = offset;
+}
+
 static void build_file_detail(struct waf_archive *arc, struct waf_file *file)
 {
 	FILE *fp;
@@ -148,6 +172,9 @@ static void build_file_detail(struct waf_archive *arc, struct waf_file *file)
 
 	fp = arc->fp;
 	file->size = 0;
+	file->blocklist = NULL;
+	file->blocklist_cap = 0;
+	file->blocklist_size = 0;
 
 	while (1)
 	{
@@ -155,28 +182,16 @@ static void build_file_detail(struct waf_archive *arc, struct waf_file *file)
 
 		if (fread_int(fp, &size) != sizeof(int))
 			break;
-
 		if (size == 0)
 			break;
 
 		file->size += size;
-
-		/* TODO: other details to be replaced */
-
-		if (fread_int(arc->fp, &size) != sizeof(int))
+		record_block_offset(file, (int)ftell(fp) - sizeof(int));
+		
+		if (fread_int(fp, &size) != sizeof(int))
 			break;
-
-		fseek(arc->fp, align_size(size), SEEK_CUR);
+		fseek(fp, align_size(size), SEEK_CUR);
 	}
-}
-
-static void expand_filelist(struct waf_archive *arc)
-{
-	assert(arc != NULL);
-	assert(arc->filelist_cap >= 0);
-
-	arc->filelist_cap += arc->filelist_cap == 0 ? 8 : arc->filelist_cap / 2;
-	arc->filelist = realloc(arc->filelist, sizeof(struct waf_file) * arc->filelist_cap);
 }
 
 static void build_filelist(struct waf_archive *arc)
@@ -191,7 +206,7 @@ static void build_filelist(struct waf_archive *arc)
 	while (1)
 	{
 		if (arc->filelist_size >= arc->filelist_cap)
-			expand_filelist(arc);
+			arc->filelist = expand_array(arc->filelist, sizeof(struct waf_file), &arc->filelist_cap);
 
 		if (fread_str(arc, arc->filelist[arc->filelist_size].name, _MAX_PATH) <= 0)
 			break;
@@ -244,6 +259,8 @@ struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_se
 
 void waf_close_archive(struct waf_archive *arc)
 {
+	int i;
+
 	if (arc)
 	{
 		if (arc->fp)
@@ -251,7 +268,10 @@ void waf_close_archive(struct waf_archive *arc)
 
 		free(arc->restore_buf);
 		free(arc->transformed_buf);
-		
+	
+		for (i = 0; i < arc->filelist_size; i++)
+			free(arc->filelist[i].blocklist);
+
 		free(arc->filelist);
 
 		free(arc);
