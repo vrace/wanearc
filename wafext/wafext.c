@@ -4,6 +4,22 @@
 #include <string.h>
 #include <assert.h>
 
+static struct waf_file
+{
+	char name[_MAX_PATH];
+	int size;
+	int *blocklist;
+	int blocklist_size;
+	int blocklist_cap;
+};
+
+static struct waf_working_file
+{
+	struct waf_file *file;
+	int block;
+	int offset;
+};
+
 static struct waf_archive
 {
 	struct waf_archive_setup *setup;
@@ -14,7 +30,8 @@ static struct waf_archive
 	struct waf_file *filelist;
 	int filelist_cap;
 	int filelist_size;
-	/* TODO: data here to represent the items */
+	
+	struct waf_working_file working;
 };
 
 static struct waf_archive_header
@@ -23,15 +40,6 @@ static struct waf_archive_header
 	char tag[4];
 	unsigned char restored_size[sizeof(int)];
 	unsigned char transformed_size[sizeof(int)];
-};
-
-static struct waf_file
-{
-	char name[_MAX_PATH];
-	int size;
-	int *blocklist;
-	int blocklist_size;
-	int blocklist_cap;
 };
 
 static int int_from_buf(const unsigned char *buf)
@@ -247,6 +255,10 @@ struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_se
 			arc->filelist_size = 0;
 
 			build_filelist(arc);
+
+			arc->working.file = NULL;
+			arc->working.block = -1;
+			arc->working.offset = -1;
 
 			return arc;
 		}
