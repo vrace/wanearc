@@ -290,6 +290,32 @@ void waf_close_archive(struct waf_archive *arc)
 	}
 }
 
+int waf_open(struct waf_archive *arc, const char *file)
+{
+	struct waf_file *cur = NULL;
+	int i;
+
+	assert(arc != NULL);
+
+	for (i = 0; i < arc->filelist_size; i++)
+	{
+		if (strcmp(arc->filelist[i].name, file) == 0)
+		{
+			cur = &arc->filelist[i];
+			break;
+		}
+	}
+
+	if (cur)
+	{
+		arc->working.file = cur;
+		arc->working.block = -1;
+		arc->working.offset = -1;
+	}
+
+	return cur != NULL;
+}
+
 /* TODO: temporary testing code, to be removed */
 void waf_enum_files(struct waf_archive *arc, void (*enum_func)(const char*, int))
 {
