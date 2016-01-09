@@ -326,6 +326,24 @@ int waf_size(struct waf_archive *arc)
 	return -1;
 }
 
+int waf_tell(struct waf_archive *arc)
+{
+	int pos = -1;
+	assert(arc != NULL);
+
+	if (arc->working.file)
+	{
+		pos = 0;
+
+		if (arc->working.block > 0)
+			pos += arc->working.block * arc->setup->restored_size;
+
+		pos += arc->working.offset;
+	}
+
+	return pos;
+}
+
 /* TODO: temporary testing code, to be removed */
 void waf_enum_files(struct waf_archive *arc, void (*enum_func)(const char*, int))
 {
