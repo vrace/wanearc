@@ -27,6 +27,19 @@ void show_file_detail(const char *name, int size)
 	printf("--> [%s] %d bytes\n", name, size);
 }
 
+void locate(struct waf_archive *arc, const char *file)
+{
+	if (waf_locate(arc, file))
+	{
+		printf("The file '%s' (%d bytes) has been located.\n",
+			file, waf_size(arc));
+	}
+	else
+	{
+		printf("Can't locate file '%s'\n", file);
+	}
+}
+
 int main(void)
 {
 	struct waf_archive *arc;
@@ -37,6 +50,10 @@ int main(void)
 		printf("Archive opened!\n");
 
 		waf_enum_files(arc, show_file_detail);
+
+		locate(arc, "blablabla.xxx");
+		locate(arc, "archive.c");
+		locate(arc, "archive.h");
 
 		waf_close_archive(arc);
 	}

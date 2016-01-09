@@ -290,7 +290,7 @@ void waf_close_archive(struct waf_archive *arc)
 	}
 }
 
-int waf_open(struct waf_archive *arc, const char *file)
+int waf_locate(struct waf_archive *arc, const char *file)
 {
 	struct waf_file *cur = NULL;
 	int i;
@@ -314,6 +314,16 @@ int waf_open(struct waf_archive *arc, const char *file)
 	}
 
 	return cur != NULL;
+}
+
+int waf_size(struct waf_archive *arc)
+{
+	assert(arc != NULL);
+
+	if (arc->working.file)
+		return arc->working.file->size;
+
+	return -1;
 }
 
 /* TODO: temporary testing code, to be removed */

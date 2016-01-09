@@ -14,6 +14,7 @@ struct waf_archive_setup
 struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_setup *setup);
 void waf_close_archive(struct waf_archive *arc);
 
-int waf_open(struct waf_archive *arc, const char *file);
+int waf_locate(struct waf_archive *arc, const char *file);
+int waf_size(struct waf_archive *arc);
 
 #endif
