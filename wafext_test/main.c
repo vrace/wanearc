@@ -40,6 +40,24 @@ void locate(struct waf_archive *arc, const char *file)
 	}
 }
 
+void read_test(struct waf_archive *arc)
+{
+	char buf[4096];
+	int read;
+
+	read = waf_read(arc, buf, 4000);
+	if (read >= 0)
+	{
+		buf[read] = '\0';
+		printf("%d bytes read.\n", read);
+		printf("%s\n", buf);
+	}
+	else
+	{
+		printf("Error reading file.\n");
+	}
+}
+
 int main(void)
 {
 	struct waf_archive *arc;
@@ -52,8 +70,12 @@ int main(void)
 		waf_enum_files(arc, show_file_detail);
 
 		locate(arc, "blablabla.xxx");
+
 		locate(arc, "archive.c");
+		read_test(arc);
+
 		locate(arc, "archive.h");
+		read_test(arc);
 
 		waf_close_archive(arc);
 	}

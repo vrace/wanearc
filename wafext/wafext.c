@@ -194,7 +194,7 @@ static void build_file_detail(struct waf_archive *arc, struct waf_file *file)
 			break;
 
 		file->size += size;
-		record_block_offset(file, (int)ftell(fp) - sizeof(int));
+		record_block_offset(file, (int)ftell(fp));
 		
 		if (fread_int(fp, &size) != sizeof(int))
 			break;
@@ -258,7 +258,7 @@ struct waf_archive* waf_open_archive(const char *filename, struct waf_archive_se
 
 			arc->working.file = NULL;
 			arc->working.block = -1;
-			arc->working.offset = -1;
+			arc->working.offset = 0;
 
 			return arc;
 		}
@@ -310,7 +310,7 @@ int waf_locate(struct waf_archive *arc, const char *file)
 	{
 		arc->working.file = cur;
 		arc->working.block = -1;
-		arc->working.offset = -1;
+		arc->working.offset = 0;
 	}
 
 	return cur != NULL;
@@ -332,16 +332,124 @@ int waf_tell(struct waf_archive *arc)
 	assert(arc != NULL);
 
 	if (arc->working.file)
-	{
-		pos = 0;
-
-		if (arc->working.block > 0)
-			pos += arc->working.block * arc->setup->restored_size;
-
-		pos += arc->working.offset;
-	}
+		pos = arc->working.offset;
 
 	return pos;
+}
+
+int waf_eof(struct waf_archive *arc)
+{
+	assert(arc != NULL);
+
+	if (arc->working.file)
+		return arc->working.offset >= arc->working.file->size;
+
+	return 1;
+}
+
+static int readable_size(struct waf_archive *arc)
+{
+	struct waf_working_file *working;
+	int begin;
+	int end;
+
+	assert(arc != NULL);
+	assert(arc->working.file != NULL);
+
+	working = &arc->working;
+
+	begin = working->block * arc->setup->restored_size;
+	end = (working->block + 1) * arc->setup->restored_size;
+
+	if (end > working->file->size)
+		end = working->file->size;
+
+	if (working->offset >= begin && working->offset < end)
+		return end - working->offset;
+
+	return 0;
+}
+
+static int copy_block_buf(struct waf_archive *arc, unsigned char *buf, int size)
+{
+	int size_to_copy;
+
+	assert(arc != NULL);
+	assert(buf != NULL);
+	assert(size >= 0);
+
+	size_to_copy = readable_size(arc);
+	if (size_to_copy > size)
+		size_to_copy = size;
+
+	memcpy(buf, arc->restore_buf, size_to_copy);
+	arc->working.offset += size_to_copy;
+
+	return size_to_copy;
+}
+
+static int restore_block(struct waf_archive *arc)
+{
+	struct waf_working_file *working;
+	int block_to_restore;
+
+	assert(arc != NULL);
+	assert(arc->working.file != NULL);
+
+	working = &arc->working;
+	block_to_restore = working->offset / arc->setup->restored_size;
+
+	if (block_to_restore >= 0 && block_to_restore < working->file->blocklist_size)
+	{
+		int blocksize;
+		fseek(arc->fp, working->file->blocklist[block_to_restore], SEEK_SET);
+		if ((blocksize = fread_block(arc)) > 0)
+		{
+			int restored_size = arc->setup->restore(arc->setup, arc->restore_buf, arc->transformed_buf, blocksize);
+			if (restored_size >= 0)
+			{
+				working->block = block_to_restore;
+				return restored_size;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int waf_read(struct waf_archive *arc, unsigned char *buf, int size)
+{
+	int sizeread = -1;
+
+	assert(arc != NULL);
+	assert(buf != NULL);
+
+	if (arc->working.file)
+	{
+		int read = 0;
+
+		sizeread = 0;
+		while (size > 0 && read >= 0 && !waf_eof(arc))
+		{
+			int read = copy_block_buf(arc, &buf[sizeread], size);
+			
+			if (read == 0)
+			{
+				if (!restore_block(arc))
+					read = -1;
+			}
+			else if (read > 0)
+			{
+				sizeread += read;
+				size -= read;
+			}
+		}
+
+		if (read < 0)
+			sizeread = -1;
+	}
+
+	return sizeread;
 }
 
 /* TODO: temporary testing code, to be removed */
