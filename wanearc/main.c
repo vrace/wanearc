@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include "archive.h"
+#include "../wanearc_module_minilzo/archive_setup_minilzo.h"
 
 void show_title(void)
 {
@@ -16,7 +17,7 @@ void show_usage(void)
 	printf("Usage: wanearc <archive> <listfile>\n");
 }
 
-int build_archive(const char *archive_name, const char *listfile_name)
+int build_archive(const char *archive_name, const char *listfile_name, struct archive_setup *setup)
 {
 	int err = 0;
 	FILE *listfile = NULL;
@@ -34,7 +35,7 @@ int build_archive(const char *archive_name, const char *listfile_name)
 			break;
 
 		err = 2;
-		arc = archive_create(archive_name, &default_setup);
+		arc = archive_create(archive_name, setup);
 		if (!arc)
 			break;
 
@@ -91,7 +92,10 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		err = build_archive(argv[1], argv[2]);
+		struct archive_setup *setup;
+		init_archive_setup_minilzo();
+		setup = (struct archive_setup*)&archive_setup_minilzo;
+		err = build_archive(argv[1], argv[2], setup);
 	}
 
 	return 0;
