@@ -14,7 +14,11 @@ void show_title(void)
 
 void show_usage(void)
 {
-	printf("Usage: wanearc <archive> <listfile>\n");
+	printf("Usage: wanearc <archive> <listfile> [transform]\n");
+	printf("\n");
+	printf("Available transforms:\n");
+	printf("    RAW     Keep the data unchanged.\n");
+	printf("    LZO     Use minilzo to compress the data.\n");
 }
 
 int build_archive(const char *archive_name, const char *listfile_name, struct archive_setup *setup)
@@ -80,12 +84,45 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 	return err;
 }
 
+struct archive_setup* init_minilzo_setup(void)
+{
+	init_archive_setup_minilzo();
+	return (struct archive_setup*)&archive_setup_minilzo;
+}
+
+struct archive_setup* archive_setup_from_arg(const char *transform)
+{
+	struct archive_setup *setup = NULL;
+
+	if (!transform)
+		transform = "LZO";
+
+	if (strcmp(transform, "RAW") == 0)
+	{
+		setup = &default_setup;
+	}
+	else if (strcmp(transform, "LZO") == 0)
+	{
+		setup = init_minilzo_setup();
+	}
+
+	if (!setup)
+	{
+		printf("Unrecognized transform '%s'.\n", transform);
+		setup = init_minilzo_setup();
+		transform = "LZO";
+	}
+
+	printf("Setting transform to '%s'...\n", transform);
+	return setup;
+}
+
 int main(int argc, char *argv[])
 {
 	int err = 0;
 	show_title();
 
-	if (argc != 3)
+	if (argc != 3 && argc != 4)
 	{
 		show_usage();
 		err = -1;
@@ -93,8 +130,11 @@ int main(int argc, char *argv[])
 	else
 	{
 		struct archive_setup *setup;
-		init_archive_setup_minilzo();
-		setup = (struct archive_setup*)&archive_setup_minilzo;
+		const char *transform;
+
+		transform = argc == 4 ? argv[3] : NULL;
+		setup = archive_setup_from_arg(transform);
+
 		err = build_archive(argv[1], argv[2], setup);
 	}
 
