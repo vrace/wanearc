@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minilzo", "minilzo\minilzo.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc_module_minilzo", "wanearc_module_minilzo\wanearc_module_minilzo.vcproj", "{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_minilzo", "wafext_minilzo\wafext_minilzo.vcproj", "{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +39,10 @@ Global
 		{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}.Debug|Win32.Build.0 = Debug|Win32
 		{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}.Release|Win32.ActiveCfg = Release|Win32
 		{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}.Release|Win32.Build.0 = Release|Win32
+		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}.Debug|Win32.Build.0 = Debug|Win32
+		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}.Release|Win32.ActiveCfg = Release|Win32
+		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
