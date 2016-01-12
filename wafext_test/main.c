@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "../wafext/wafext.h"
+#include "../wafext_minilzo/wafext_minilzo.h"
 
 static int unit_restore(struct waf_archive_setup *setup, unsigned char *restored, const unsigned char *transformed, int size)
 {
@@ -62,7 +63,7 @@ int main(void)
 {
 	struct waf_archive *arc;
 
-	arc = waf_open_archive("../wanearc/data.waf", &unit_setup);
+	arc = waf_open_archive("../wanearc/data.waf", wafext_setup_minilzo());
 	if (arc)
 	{
 		printf("Archive opened!\n");

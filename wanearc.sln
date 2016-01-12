@@ -2,16 +2,29 @@
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc", "wanearc\wanearc.vcproj", "{EE5D47B6-7DAD-4B16-8258-69E829E44326}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE} = {D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext", "wafext\wafext.vcproj", "{53070D58-E110-41C0-83F2-321CAE661F6B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_test", "wafext_test\wafext_test.vcproj", "{07D9BAF2-7036-49A8-B388-B731B81E42B0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{53070D58-E110-41C0-83F2-321CAE661F6B} = {53070D58-E110-41C0-83F2-321CAE661F6B}
+		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8} = {2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minilzo", "minilzo\minilzo.vcproj", "{134084B9-D376-41A2-9B51-CDB59EB5EED4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc_module_minilzo", "wanearc_module_minilzo\wanearc_module_minilzo.vcproj", "{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{134084B9-D376-41A2-9B51-CDB59EB5EED4} = {134084B9-D376-41A2-9B51-CDB59EB5EED4}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_minilzo", "wafext_minilzo\wafext_minilzo.vcproj", "{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{134084B9-D376-41A2-9B51-CDB59EB5EED4} = {134084B9-D376-41A2-9B51-CDB59EB5EED4}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
