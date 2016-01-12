@@ -2,7 +2,7 @@
 #include <string.h>
 #include <assert.h>
 
-int unit_transform(struct archive_setup *setup, unsigned char *dest, const unsigned char *src, int size)
+static int unit_transform(struct archive_setup *setup, unsigned char *dest, const unsigned char *src, int size)
 {
 	assert(dest != NULL);
 	assert(src != NULL);
@@ -14,10 +14,15 @@ int unit_transform(struct archive_setup *setup, unsigned char *dest, const unsig
 	return size;
 }
 
-struct archive_setup default_setup =
+static struct archive_setup default_setup =
 {
 	32 * 1024,
 	32 * 1024,
 	unit_transform,
 	{ 'R', 'A', 'W', 0 },
 };
+
+struct archive_setup* archive_setup_default(void)
+{
+	return &default_setup;
+}

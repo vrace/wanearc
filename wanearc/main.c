@@ -84,12 +84,6 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 	return err;
 }
 
-struct archive_setup* init_minilzo_setup(void)
-{
-	init_archive_setup_minilzo();
-	return (struct archive_setup*)&archive_setup_minilzo;
-}
-
 struct archive_setup* archive_setup_from_arg(const char *transform)
 {
 	struct archive_setup *setup = NULL;
@@ -99,17 +93,17 @@ struct archive_setup* archive_setup_from_arg(const char *transform)
 
 	if (strcmp(transform, "RAW") == 0)
 	{
-		setup = &default_setup;
+		setup = archive_setup_default();
 	}
 	else if (strcmp(transform, "LZO") == 0)
 	{
-		setup = init_minilzo_setup();
+		setup = archive_setup_minilzo();
 	}
 
 	if (!setup)
 	{
 		printf("Unrecognized transform '%s'.\n", transform);
-		setup = init_minilzo_setup();
+		setup = archive_setup_minilzo();
 		transform = "LZO";
 	}
 

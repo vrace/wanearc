@@ -11,6 +11,6 @@ struct archive_setup
 	char tag[4];
 };
 
-extern struct archive_setup default_setup;
+struct archive_setup* archive_setup_default(void);
 
 #endif
