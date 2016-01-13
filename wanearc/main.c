@@ -21,43 +21,85 @@ void show_usage(void)
 	printf("    LZO     Use minilzo to compress the data.\n");
 }
 
-int build_archive(const char *archive_name, const char *listfile_name, struct archive_setup *setup)
+FILE* open_listfile(const char *filename)
+{
+	FILE *fp;
+
+	assert(filename != NULL);
+
+	fp = fopen(filename, "r");
+	if (!fp)
+		printf("Can't open list file '%s'.\n", filename);
+
+	return fp;
+}
+
+struct archive* begin_create_archive(const char *filename, struct archive_setup *setup)
+{
+	struct archive *arc;
+
+	assert(filename != NULL);
+
+	arc = archive_create(filename, setup);
+	if (!arc)
+		printf("Can't create archive '%s'.\n", filename);
+
+	return arc;
+}
+
+void trim_newline(char *str)
+{
+	int len = (int)strlen(str);
+	if (str[len - 1] == '\n')
+		str[len - 1] = '\0';
+}
+
+int build_from_filelist(struct archive *arc, FILE *filelist)
 {
 	int err = 0;
+	char source[_MAX_PATH];
+
+	while (!err && fgets(source, _MAX_PATH, filelist))
+	{
+		trim_newline(source);
+
+		if (strlen(source) > 0)
+		{
+			printf("\t%s\n", source);
+			err = archive_append(arc, source);
+		}
+	}
+
+	return !err;
+}
+
+int build_archive(const char *archive_name, const char *listfile_name, struct archive_setup *setup)
+{
+	int success = 0;
 	FILE *listfile = NULL;
 	struct archive *arc = NULL;
-	char source[_MAX_PATH];
 
 	assert(archive_name != NULL);
 	assert(listfile_name != NULL);
 
 	do
 	{
-		err = 1;
-		listfile = fopen(listfile_name, "r");
+		listfile = open_listfile(listfile_name);
 		if (!listfile)
 			break;
 
-		err = 2;
-		arc = archive_create(archive_name, setup);
+		arc = begin_create_archive(archive_name, setup);
 		if (!arc)
 			break;
 
 		printf("Creating archive '%s'...\n\n", archive_name);
+		success = build_from_filelist(arc, listfile);
 
-		err = 0;
-		while (err == 0 && fgets(source, _MAX_PATH, listfile))
+		if (success)
 		{
-			if (strlen(source) > 0)
-				source[strlen(source) - 1] = '\0';
-
-			if (strlen(source) > 0)
-			{
-				printf("\t%s\n", source);
-				err = archive_append(arc, source);
-			}
+			printf("\n");
+			printf("Archive '%s' has been created.\n", archive_name);
 		}
-
 	} while(0);
 
 	if (listfile)
@@ -66,22 +108,7 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 	if (arc)
 		archive_close(arc);
 
-	switch (err)
-	{
-	case 1:
-		printf("Can't read list file: %s\n", listfile_name);
-		break;
-
-	case 2:
-		printf("Can't create archive: %s\n", archive_name);
-		break;
-
-	case 0:
-		printf("\nArchive '%s' created.\n", archive_name);
-		break;
-	}
-
-	return err;
+	return success;
 }
 
 struct archive_setup* archive_setup_from_arg(const char *transform)
@@ -129,7 +156,8 @@ int main(int argc, char *argv[])
 		transform = argc == 4 ? argv[3] : NULL;
 		setup = archive_setup_from_arg(transform);
 
-		err = build_archive(argv[1], argv[2], setup);
+		if(!build_archive(argv[1], argv[2], setup))
+			err = 1;
 	}
 
 	return 0;
