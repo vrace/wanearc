@@ -50,7 +50,10 @@ struct archive* begin_create_archive(const char *filename, struct archive_setup 
 void trim_newline(char *str)
 {
 	int len = (int)strlen(str);
-	if (str[len - 1] == '\n')
+
+	assert(str != NULL);
+
+	if (len > 0 && str[len - 1] == '\n')
 		str[len - 1] = '\0';
 }
 
