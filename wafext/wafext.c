@@ -451,18 +451,3 @@ int waf_read(struct waf_archive *arc, unsigned char *buf, int size)
 
 	return sizeread;
 }
-
-/* TODO: temporary testing code, to be removed */
-void waf_enum_files(struct waf_archive *arc, void (*enum_func)(const char*, int))
-{
-	int i;
-
-	assert(arc != NULL);
-	assert(enum_func != NULL);
-
-	for (i = 0; i < arc->filelist_size; i++)
-	{
-		struct waf_file *file = &arc->filelist[i];
-		enum_func(file->name, file->size);
-	}
-}

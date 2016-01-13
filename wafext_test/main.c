@@ -19,15 +19,6 @@ static struct waf_archive_setup unit_setup =
 	{ 'R', 'A', 'W', 0 },
 };
 
-/* temporary testing code */
-/* TODO: to be removed */
-extern void waf_enum_files(struct waf_archive *arc, void (*enum_func)(const char *name, int size));
-
-void show_file_detail(const char *name, int size)
-{
-	printf("--> [%s] %d bytes\n", name, size);
-}
-
 void locate(struct waf_archive *arc, const char *file)
 {
 	if (waf_locate(arc, file))
@@ -67,8 +58,6 @@ int main(void)
 	if (arc)
 	{
 		printf("Archive opened!\n");
-
-		waf_enum_files(arc, show_file_detail);
 
 		locate(arc, "blablabla.xxx");
 
