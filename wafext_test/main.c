@@ -67,6 +67,9 @@ int main(void)
 		locate(arc, "archive.h");
 		read_test(arc);
 
+		locate(arc, "listfile.txt");
+		read_test(arc);
+
 		waf_close_archive(arc);
 	}
 	else
