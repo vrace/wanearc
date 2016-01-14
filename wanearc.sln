@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc", "wanearc\wanearc.vcproj", "{EE5D47B6-7DAD-4B16-8258-69E829E44326}"
 	ProjectSection(ProjectDependencies) = postProject
+		{04445297-69A4-4E17-AC65-99621D12F350} = {04445297-69A4-4E17-AC65-99621D12F350}
 		{D226C2F0-6752-45A6-B6CB-B4BD2509FFAE} = {D226C2F0-6752-45A6-B6CB-B4BD2509FFAE}
 	EndProjectSection
 EndProject
@@ -27,6 +28,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_minilzo", "wafext_mi
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\zlib.vcproj", "{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc_module_zlib", "wanearc_module_zlib\wanearc_module_zlib.vcproj", "{04445297-69A4-4E17-AC65-99621D12F350}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9} = {9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +68,10 @@ Global
 		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}.Debug|Win32.Build.0 = Debug|Win32
 		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}.Release|Win32.ActiveCfg = Release|Win32
 		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}.Release|Win32.Build.0 = Release|Win32
+		{04445297-69A4-4E17-AC65-99621D12F350}.Debug|Win32.ActiveCfg = Debug|Win32
+		{04445297-69A4-4E17-AC65-99621D12F350}.Debug|Win32.Build.0 = Debug|Win32
+		{04445297-69A4-4E17-AC65-99621D12F350}.Release|Win32.ActiveCfg = Release|Win32
+		{04445297-69A4-4E17-AC65-99621D12F350}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

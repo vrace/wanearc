@@ -4,6 +4,7 @@
 #include <assert.h>
 #include "archive.h"
 #include "../wanearc_module_minilzo/archive_setup_minilzo.h"
+#include "../wanearc_module_zlib/archive_setup_zlib.h"
 
 void show_title(void)
 {
@@ -19,6 +20,7 @@ void show_usage(void)
 	printf("Available transforms:\n");
 	printf("    RAW     Keep the data unchanged.\n");
 	printf("    LZO     Use minilzo to compress the data.\n");
+	printf("    ZIP     Use zlib to compress the data.\n");
 }
 
 FILE* open_listfile(const char *filename)
@@ -128,6 +130,10 @@ struct archive_setup* archive_setup_from_arg(const char *transform)
 	else if (strcmp(transform, "LZO") == 0)
 	{
 		setup = archive_setup_minilzo();
+	}
+	else if (strcmp(transform, "ZIP") == 0)
+	{
+		setup = archive_setup_zlib();
 	}
 
 	if (!setup)
