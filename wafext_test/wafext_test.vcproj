@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(OutDir)\wafext_minilzo.lib"
+				AdditionalDependencies="$(OutDir)\wafext_minilzo.lib $(OutDir)\wafext_zlib.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"

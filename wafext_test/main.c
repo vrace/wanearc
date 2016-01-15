@@ -4,6 +4,7 @@
 
 #include "../wafext/wafext.h"
 #include "../wafext_minilzo/wafext_minilzo.h"
+#include "../wafext_zlib/wafext_zlib.h"
 
 static int unit_restore(struct waf_archive_setup *setup, unsigned char *restored, const unsigned char *transformed, int size)
 {
@@ -52,9 +53,15 @@ void read_test(struct waf_archive *arc)
 
 int main(void)
 {
-	struct waf_archive *arc;
+	struct waf_archive *arc = NULL;
+	const char *file = "../wanearc/data.waf";
 
-	arc = waf_open_archive("../wanearc/data.waf", wafext_setup_minilzo());
+	/* demo only! */
+	/* should explicitly use one setup in real world! */
+	arc = waf_open_archive(file, &unit_setup);
+	arc = arc ? arc : waf_open_archive(file, wafext_setup_minilzo());
+	arc = arc ? arc : waf_open_archive(file, wafext_setup_zlib());
+
 	if (arc)
 	{
 		printf("Archive opened!\n");
