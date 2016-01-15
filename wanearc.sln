@@ -11,8 +11,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext", "wafext\wafext.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_test", "wafext_test\wafext_test.vcproj", "{07D9BAF2-7036-49A8-B388-B731B81E42B0}"
 	ProjectSection(ProjectDependencies) = postProject
-		{53070D58-E110-41C0-83F2-321CAE661F6B} = {53070D58-E110-41C0-83F2-321CAE661F6B}
 		{2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8} = {2EE3C62C-2F25-40D5-A49D-BB4D812DC3F8}
+		{CA6BC5AA-6008-4C10-8B50-963FF4DF6169} = {CA6BC5AA-6008-4C10-8B50-963FF4DF6169}
+		{53070D58-E110-41C0-83F2-321CAE661F6B} = {53070D58-E110-41C0-83F2-321CAE661F6B}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minilzo", "minilzo\minilzo.vcproj", "{134084B9-D376-41A2-9B51-CDB59EB5EED4}"
@@ -30,6 +31,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\zlib.vcproj", "{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wanearc_module_zlib", "wanearc_module_zlib\wanearc_module_zlib.vcproj", "{04445297-69A4-4E17-AC65-99621D12F350}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9} = {9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wafext_zlib", "wafext_zlib\wafext_zlib.vcproj", "{CA6BC5AA-6008-4C10-8B50-963FF4DF6169}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9} = {9CAFA5F8-CAA9-44C2-92E5-AD65BC799EB9}
 	EndProjectSection
@@ -72,6 +78,10 @@ Global
 		{04445297-69A4-4E17-AC65-99621D12F350}.Debug|Win32.Build.0 = Debug|Win32
 		{04445297-69A4-4E17-AC65-99621D12F350}.Release|Win32.ActiveCfg = Release|Win32
 		{04445297-69A4-4E17-AC65-99621D12F350}.Release|Win32.Build.0 = Release|Win32
+		{CA6BC5AA-6008-4C10-8B50-963FF4DF6169}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CA6BC5AA-6008-4C10-8B50-963FF4DF6169}.Debug|Win32.Build.0 = Debug|Win32
+		{CA6BC5AA-6008-4C10-8B50-963FF4DF6169}.Release|Win32.ActiveCfg = Release|Win32
+		{CA6BC5AA-6008-4C10-8B50-963FF4DF6169}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
