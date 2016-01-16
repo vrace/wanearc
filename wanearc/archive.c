@@ -5,7 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
-struct archive
+static struct archive
 {
 	struct archive_setup *setup;
 	FILE *fp;
