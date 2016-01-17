@@ -15,7 +15,7 @@ static struct archive
 
 static int write_header(FILE *fp, struct archive_setup *setup)
 {
-	int err;
+	int success = 0;
 	char waf[4] = { 'W', 'A', 'F', '\0' };
 
 	assert(fp != NULL);
@@ -23,26 +23,22 @@ static int write_header(FILE *fp, struct archive_setup *setup)
 
 	do
 	{
-		err = 1;
 		if (fwrite(waf, 1, 4, fp) != 4)
 			break;
 
-		err = 2;
 		if (fwrite(setup->tag, 1, 4, fp) != 4)
 			break;
 
-		err = 3;
 		if (fwrite_int(fp, setup->src_size) != sizeof(int))
 			break;
 
-		err = 4;
 		if (fwrite_int(fp, setup->transform_size) != sizeof(int))
 			break;
 
-		err = 0;
+		success = 1;
 	} while (0);
 
-	return err;
+	return success;
 }
 
 struct archive* archive_create(const char *name, struct archive_setup *setup)
@@ -59,7 +55,7 @@ struct archive* archive_create(const char *name, struct archive_setup *setup)
 	fp = fopen(name, "wb");
 	if (fp)
 	{
-		if (write_header(fp, setup) == 0)
+		if (write_header(fp, setup))
 		{
 			arc = malloc(sizeof(struct archive));
 			assert(arc != NULL);
