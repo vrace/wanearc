@@ -90,7 +90,7 @@ void archive_close(struct archive *archive)
 
 static int write_content(struct archive *archive, FILE *src)
 {
-	int err = 0;
+	int err = WANEARC_OK;
 	int size;
 	int transformed_size;
 
@@ -99,27 +99,26 @@ static int write_content(struct archive *archive, FILE *src)
 
 	while ((size = (int)fread(archive->src, 1, archive->setup->src_size, src)) > 0)
 	{
-		err = 1;
+		err = WANEARC_ERR_WRITE;
 		if (fwrite_int(archive->fp, size) != sizeof(int))
 			break;
 
-		err = 2;
+		err = WANEARC_ERR_TRANSFORM;
 		transformed_size = archive->setup->transform(archive->setup, archive->transformed, archive->src, size);
 		if (transformed_size < 0)
 			break;
 
-		err = 3;
+		err = WANEARC_ERR_WRITE;
 		if (fwrite_buf(archive->fp, archive->transformed, transformed_size) != transformed_size)
 			break;
 
-		err = 0;
+		err = WANEARC_OK;
 	}
 
-	if (err == 0)
+	if (err == WANEARC_OK)
 	{
-		err = 3;
-		if (fwrite_int(archive->fp, 0) == sizeof(int))
-			err = 0;
+		if (fwrite_int(archive->fp, 0) != sizeof(int))
+			err = WANEARC_ERR_WRITE;
 	}
 
 	return err;
