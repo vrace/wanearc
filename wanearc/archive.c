@@ -117,7 +117,7 @@ static int write_content(struct archive *archive, FILE *src)
 		err = WANEARC_OK;
 	}
 
-	if (err == WANEARC_OK)
+	if (!err)
 	{
 		if (fwrite_int(archive->fp, 0) != sizeof(int))
 			err = WANEARC_ERR_WRITE;
