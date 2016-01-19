@@ -136,20 +136,16 @@ int archive_append(struct archive *archive, const char *file)
 
 	do
 	{
-		err = 1;
+		err = WANEARC_ERR_READ;
 		src = fopen(file, "rb");
 		if (!src)
 			break;
 
-		err = 2;
+		err = WANEARC_ERR_WRITE;
 		if(fwrite_str(archive->fp, file) != (int)strlen(file))
 			break;
 
-		err = 3;
-		if (write_content(archive, src) != 0)
-			break;
-
-		err = 0;
+		err = write_content(archive, src);
 	} while(0);
 
 	if (src)
