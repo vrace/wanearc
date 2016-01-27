@@ -8,6 +8,7 @@
 #define WANEARC_ERR_READ		100
 #define WANEARC_ERR_WRITE		200
 #define WANEARC_ERR_TRANSFORM	300
+#define WANEARC_ERR_FILELIST	400
 
 struct archive* archive_create(const char *name, struct archive_setup *setup);
 void archive_close(struct archive *archive);

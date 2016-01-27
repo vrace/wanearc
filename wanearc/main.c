@@ -61,10 +61,10 @@ void trim_newline(char *str)
 
 int build_from_filelist(struct archive *arc, FILE *filelist)
 {
-	int err = 0;
+	int err = WANEARC_OK;
 	char source[_MAX_PATH];
 
-	while (!err && fgets(source, _MAX_PATH, filelist))
+	while (err == WANEARC_OK && fgets(source, _MAX_PATH, filelist))
 	{
 		trim_newline(source);
 
@@ -75,12 +75,12 @@ int build_from_filelist(struct archive *arc, FILE *filelist)
 		}
 	}
 
-	return !err;
+	return err;
 }
 
 int build_archive(const char *archive_name, const char *listfile_name, struct archive_setup *setup)
 {
-	int success = 0;
+	int err = WANEARC_OK;
 	FILE *listfile = NULL;
 	struct archive *arc = NULL;
 
@@ -89,21 +89,29 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 
 	do
 	{
+		err = WANEARC_ERR_FILELIST;
 		listfile = open_listfile(listfile_name);
 		if (!listfile)
 			break;
 
+		err = WANEARC_ERR_WRITE;
 		arc = begin_create_archive(archive_name, setup);
 		if (!arc)
 			break;
 
 		printf("Creating archive '%s'...\n\n", archive_name);
-		success = build_from_filelist(arc, listfile);
+		err = build_from_filelist(arc, listfile);
 
-		if (success)
+		if (err == WANEARC_OK)
 		{
 			printf("\n");
 			printf("Archive '%s' has been created.\n", archive_name);
+		}
+		else
+		{
+			printf("[x] Failed to add this file.\n");
+			printf("\n");
+			printf("Abort creating archive.\n");
 		}
 	} while(0);
 
@@ -113,7 +121,7 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 	if (arc)
 		archive_close(arc);
 
-	return success;
+	return err;
 }
 
 struct archive_setup* archive_setup_from_arg(const char *transform)
@@ -165,9 +173,8 @@ int main(int argc, char *argv[])
 		transform = argc == 4 ? argv[3] : NULL;
 		setup = archive_setup_from_arg(transform);
 
-		if(!build_archive(argv[1], argv[2], setup))
-			err = 1;
+		err = build_archive(argv[1], argv[2], setup);
 	}
 
-	return 0;
+	return err;
 }
