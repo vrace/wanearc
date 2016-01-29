@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "../wafext/wafext.h"
 #include "../wafext_minilzo/wafext_minilzo.h"
@@ -99,10 +100,120 @@ void offset_test(struct waf_archive *arc)
 	read_offset_test(arc);
 }
 
+struct crazy_chunk
+{
+	int offset;
+	int size;
+};
+
+struct crazy_chunk_array
+{
+	struct crazy_chunk *p;
+	int cap;
+	int size;
+};
+
+void randomize_array(struct crazy_chunk_array *arr)
+{
+	int i;
+
+	for (i = 0; i < arr->size; i++)
+	{
+		struct crazy_chunk t = arr->p[i];
+		int r = rand() % arr->size;
+
+		arr->p[i] = arr->p[r];
+		arr->p[r] = t;
+	}
+}
+
+struct crazy_chunk_array build_crazy_chunks(int total)
+{
+	int offset = 0;
+	struct crazy_chunk_array arr;
+
+	arr.p = NULL;
+	arr.cap = 0;
+	arr.size = 0;
+
+	while (offset < total)
+	{
+		struct crazy_chunk c;
+
+		c.offset = offset;
+		c.size = rand() % 1048576;
+
+		if (offset + c.size > total)
+			c.size = total - offset;
+
+		if (arr.size >= arr.cap)
+		{
+			int newcap = arr.cap + (arr.cap > 4 ? arr.cap / 2 : 4);
+			arr.p = realloc(arr.p, sizeof(struct crazy_chunk) * newcap);
+			arr.cap = newcap;
+		}
+
+		arr.p[arr.size++] = c;
+		offset += c.size;
+	}
+
+	randomize_array(&arr);
+
+	return arr;
+}
+
+/* this extracts a big file in random offset and size */
+/* the output file should be identical to packed source file */
+void crazy_extract(struct waf_archive *arc, const char *name)
+{
+	if (waf_locate(arc, name))
+	{
+		FILE *fp;
+		struct crazy_chunk_array arr = build_crazy_chunks(waf_size(arc));
+
+		fp = fopen(name, "wb");
+		if (fp)
+		{
+			int i;
+			char *buf = malloc(1048576);
+
+			for (i = 0; i < waf_size(arc); i++)
+				fputc(0, fp);
+
+			for (i = 0; i < arr.size; i++)
+			{
+				waf_seek(arc, arr.p[i].offset, SEEK_SET);
+				waf_read(arc, buf, arr.p[i].size);
+
+				fseek(fp, arr.p[i].offset, SEEK_SET);
+				fwrite(buf, 1, arr.p[i].size, fp);
+			}
+
+			free(buf);
+			fclose(fp);
+
+			printf("New file has been created.\n");
+			printf("%d blocks have been written.\n", arr.size);
+		}
+		else
+		{
+			printf("Could not create '%s'.\n", name);
+		}
+
+		free(arr.p);
+	}
+	else
+	{
+		printf("Could not locate '%s'.\n", name);
+	}
+}
+
 int main(void)
 {
 	struct waf_archive *arc = NULL;
 	const char *file = "../wanearc/data.waf";
+
+	srand((unsigned int)time(NULL));
 
 	/* demo only! */
 	/* should explicitly use one setup in real world! */
@@ -132,8 +243,10 @@ int main(void)
 		locate(arc, "text.txt");
 		read_test(arc);
 		offset_test(arc);
-
 		waf_locate(arc, NULL);
+
+		crazy_extract(arc, "VS80sp1-KB926748-X86-INTL.exe");
+
 		waf_close_archive(arc);
 	}
 	else
