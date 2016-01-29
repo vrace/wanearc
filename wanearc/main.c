@@ -72,8 +72,13 @@ int build_from_filelist(struct archive *arc, FILE *filelist)
 		{
 			printf("\t%s\n", source);
 			err = archive_append(arc, source);
+			if (err != WANEARC_OK)
+				printf("\nFailed to add '%s'.\n", source);
 		}
 	}
+
+	if (err == WANEARC_OK)
+		printf("\nDone.\n");
 
 	return err;
 }
@@ -101,18 +106,6 @@ int build_archive(const char *archive_name, const char *listfile_name, struct ar
 
 		printf("Creating archive '%s'...\n\n", archive_name);
 		err = build_from_filelist(arc, listfile);
-
-		if (err == WANEARC_OK)
-		{
-			printf("\n");
-			printf("Archive '%s' has been created.\n", archive_name);
-		}
-		else
-		{
-			printf("[x] Failed to add this file.\n");
-			printf("\n");
-			printf("Abort creating archive.\n");
-		}
 	} while(0);
 
 	if (listfile)
