@@ -297,7 +297,7 @@ int waf_locate(struct waf_archive *arc, const char *file)
 
 	assert(arc != NULL);
 
-	for (i = 0; i < arc->filelist_size; i++)
+	for (i = 0; file && i < arc->filelist_size; i++)
 	{
 		if (strcmp(arc->filelist[i].name, file) == 0)
 		{
@@ -306,12 +306,9 @@ int waf_locate(struct waf_archive *arc, const char *file)
 		}
 	}
 
-	if (cur)
-	{
-		arc->working.file = cur;
-		arc->working.block = -1;
-		arc->working.offset = 0;
-	}
+	arc->working.file = cur;
+	arc->working.block = -1;
+	arc->working.offset = 0;
 
 	return cur != NULL;
 }
@@ -335,6 +332,40 @@ int waf_tell(struct waf_archive *arc)
 		pos = arc->working.offset;
 
 	return pos;
+}
+
+int waf_seek(struct waf_archive *arc, int offset, int origin)
+{
+	int ret = -1;
+	assert(arc != NULL);
+	
+	if (arc->working.file)
+	{
+		switch (origin)
+		{
+		case SEEK_SET:
+			if (offset < 0)
+				offset = 0;
+			if (offset > arc->working.file->size)
+				offset = arc->working.file->size;
+			arc->working.offset = offset;
+			ret = 0;
+			break;
+
+		case SEEK_CUR:
+			ret = waf_seek(arc, arc->working.offset + offset, SEEK_SET);
+			break;
+
+		case SEEK_END:
+			ret = waf_seek(arc, arc->working.file->size + offset, SEEK_SET);
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	return ret;
 }
 
 int waf_eof(struct waf_archive *arc)
@@ -382,7 +413,7 @@ static int copy_block_buf(struct waf_archive *arc, unsigned char *buf, int size)
 	if (size_to_copy > size)
 		size_to_copy = size;
 
-	memcpy(buf, arc->restore_buf, size_to_copy);
+	memcpy(buf, arc->restore_buf + arc->working.offset % arc->setup->restored_size, size_to_copy);
 	arc->working.offset += size_to_copy;
 
 	return size_to_copy;

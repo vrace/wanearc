@@ -17,6 +17,7 @@ void waf_close_archive(struct waf_archive *arc);
 int waf_locate(struct waf_archive *arc, const char *file);
 int waf_size(struct waf_archive *arc);
 int waf_tell(struct waf_archive *arc);
+int waf_seek(struct waf_archive *arc, int offset, int origin);
 int waf_eof(struct waf_archive *arc);
 int waf_read(struct waf_archive *arc, unsigned char *buf, int size);
 
